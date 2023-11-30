@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Statistics</title>
+    <style>
+                /* Customer Styles */
+        .customer-container {
+            margin: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .customer-email {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .customer-tasks {
+            margin-top: 10px;
+            font-size: 16px;
+        }
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        /* Statistics Styles */
+        .statistics-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px;
+        }
+
+        .statistic {
+            flex: 1;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+            .statistic h2 {
+                font-size: 20px;
+            }
+
+            .statistic p {
+                font-size: 24px;
+                font-weight: bold;
+                margin-top: 10px;
+            }
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+        }
+
+            .user-section a {
+                color: white;
+                text-decoration: none;
+                margin-left: 10px;
+            }
+
+        /* Form Styles */
+        .form-container {
+            background-color: #f2f2f2;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .form-button {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+        <div class="header">
+        <div class="logo">
+            <a href="/dashboard/" style="text-decoration:none;color:white">Scrum Board</a>
+        </div>
+        <div class="user-section">
+            @if (User.Identity.IsAuthenticated)
+            {
+                    <span>Hello, @ViewData["Username"]</span>
+                    <a href="/Account/Logout">Logout</a>
+            }
+            else
+            {
+                    <a href="/Account/Login">Login</a>
+                    <a href="/Account/Register">Register</a>
+            }
+        </div>
+    </div>
+    <div class="statistics-container">
+        <div class="statistic">
+            <h2>Todo</h2>
+            <p>@ViewData["todo"]</p> <!-- Replace with your actual count of tasks in "Todo" -->
+        </div>
+        <div class="statistic">
+            <h2>In Progress</h2>
+            <p>@ViewData["in-progress"]</p> <!-- Replace with your actual count of tasks in "In Progress" -->
+        </div>
+        <div class="statistic">
+            <h2>Done</h2>
+            <p>@ViewData["done"]</p> <!-- Replace with your actual count of tasks in "Done" -->
+        </div>
+    </div>
+        <div class="customer-container">
+        <h2>Customer Tasks</h2>
+        @foreach(var i in ViewData["all"] as List<User_>)
+        {
+            <div class="customer">
+                <div class="customer-email">@i.Email</div>
+                <div class="customer-tasks">
+                    <ul>
+                        @foreach(var j in ViewData[i.Email] as List<Tickets>)
+                        {
+                            <li>@j.Taskname</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+    </div>
+</body>
+</html>

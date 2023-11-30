@@ -1,0 +1,316 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrum Board</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+        }
+
+            .user-section a {
+                color: white;
+                text-decoration: none;
+                margin-left: 10px;
+            }
+
+        .navigation a {
+            color: white;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+
+        .create-button a {
+            background-color: #f2f2f2;
+            color: #333;
+            text-decoration: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+
+            .create-button a:hover {
+                background-color: #ddd;
+            }
+
+        /* Scrum Board Styles */
+        .scrum-board {
+            display: flex;
+            justify-content: space-around;
+            padding: 20px;
+        }
+
+        .column {
+            flex: 1;
+            background-color: #f2f2f2;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+            .column h2 {
+                text-align: center;
+                margin-bottom: 10px;
+            }
+
+        .task-card {
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+            .task-card:hover {
+                background-color: #f9f9f9;
+            }
+
+        .edit-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+            .edit-button:hover {
+                background-color: #0056b3;
+            }
+
+        /* Filtering Section Styles */
+        .filter-section {
+            display: flex;
+            align-items: center;
+            margin: 20px;
+        }
+
+        .filter-input {
+            margin-right: 10px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .filter-button {
+            background-color: #333;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            .filter-button:hover {
+                background-color: #222;
+            }
+
+        /* Drag and Drop Styles */
+        .dragging {
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <a href="/dashboard/" style="text-decoration:none;color:white">Scrum Board</a>
+        </div>
+        <div class="user-section">
+            @if (User.Identity.IsAuthenticated)
+            {
+                <span>Hello, @ViewData["Username"]</span>
+                <a href="/Account/Logout">Logout</a>
+            }
+            else
+            {
+                <a href="/Account/Login">Login</a>
+                <a href="/Account/Register">Register</a>
+            }
+        </div>
+        <div class="navigation">
+            <a href="/dashboard">Home</a>
+        </div>
+        <div class="create-button">
+            @if (User.Identity.IsAuthenticated)
+            {
+                <a href="/Ticket/create_ticket">Create Ticket</a>
+                <a href="/reports">reports</a>
+            }
+        </div>
+    </div>
+
+    <!-- Filtering Section -->
+    <div class="filter-section">
+        <form method="post" action="/dashboard">
+            <input type="text" class="filter-input" name="name" id="filter-string" placeholder="Filter by string...">
+            <input type="date" class="filter-input" name="date" id="filter-date">
+            <input type="submit" value="filter"/>
+        </form>
+    </div>
+
+    <div class="scrum-board">
+        <div class="column" id="todo">
+            <h2>Todo</h2>
+            @foreach (Tickets i in Model)
+            {
+                if (i.Taskstatus == "todo")
+                {
+                    <div class="task-card" id="@i.id" draggable="true" ondragstart="dragStart(event)">
+                        @i.Taskname<br />due date: @i.due.ToString("MM-dd-yyyy")
+                        <button class="edit-button" onclick="editTask('@i.id')">Edit</button>
+                    </div>
+                }
+            }
+        </div>
+        <div class="column" id="in-progress">
+            <h2>In Progress</h2>
+            @foreach (Tickets i in Model)
+            {
+                if (i.Taskstatus == "in-progress")
+                {
+                    <div class="task-card" id="@i.id" draggable="true" ondragstart="dragStart(event)">
+                        @i.Taskname<br />due date: @i.due.ToString("MM-dd-yyyy")
+                        <button class="edit-button" onclick="editTask('@i.id')">Edit</button>
+                    </div>
+                }
+            }
+        </div>
+        <div class="column" id="done">
+            <h2>Done</h2>
+            @foreach (Tickets i in Model)
+            {
+                if (i.Taskstatus == "done")
+                {
+                    <div class="task-card" id="@i.id" draggable="true" ondragstart="dragStart(event)">
+                        @i.Taskname<br />due date: @i.due.ToString("MM-dd-yyyy")
+                        <button class="edit-button" onclick="editTask('@i.id')">Edit</button>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+
+    <script>
+        var x  = @ViewData["cc"];
+        function editTask(taskId) {
+            window.location.href = `/Ticket/taskDetails/${taskId}`;
+        }
+
+        function applyFilter() {
+            // Get the filter values
+            const filterString = document.getElementById("filter-string").value;
+            const filterDate = document.getElementById("filter-date").value;
+
+            // Apply your filtering logic here
+            // You can use JavaScript to show/hide task cards based on filter criteria
+            // Example: Loop through task cards and compare their data with filter values
+        }
+
+        function dragStart(event) {
+            event.dataTransfer.setData("text/plain", event.target.id);
+            event.target.classList.add("dragging");
+        }
+
+        document.addEventListener("dragend", (event) => {
+            event.target.classList.remove("dragging");
+        });
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const columns = document.querySelectorAll(".column");
+
+            columns.forEach((column) => {
+                column.addEventListener("dragover", (e) => {
+                    e.preventDefault();
+                });
+
+                column.addEventListener("drop", (e) => {
+                    e.preventDefault();
+                    const taskId = e.dataTransfer.getData("text/plain");
+                    const taskCard = document.getElementById(taskId);
+
+                    // Get the current status and the target column's ID
+                    const currentStatus = taskCard.closest(".column").id;
+                    const newStatus = column.id;
+
+                    // Update the status visually
+                    column.appendChild(taskCard);
+
+                    // Simulated API call (replace with your actual API call)
+                    sendStatusUpdate(taskId, currentStatus, newStatus);
+                });
+            });
+
+            function sendStatusUpdate(taskId, currentStatus, newStatus) {
+                if (currentStatus == newStatus)
+                    return;
+                console.log(`Sending API call to update task ${taskId} status from ${currentStatus} to ${newStatus}`);
+                fetch('/Ticket/update-status', {
+                    method: 'POST',
+                    body: JSON.stringify({ ticket_id: taskId, status: newStatus }),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data); // Handle response from server
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+        });
+        function popupLoop() {
+          
+            fetch('/counter', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(x)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const intValue = parseInt(data); // Assuming the response is a JSON integer
+                    if (!isNaN(intValue) && intValue != x) {
+                        window.alert("you have new tasks please refresh the page to get it");
+                        x = intValue;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.alert('An error occurred while making the request.');
+                });
+        }
+
+        setInterval(popupLoop, 10000); 
+    </script>
+</body>
+</html>

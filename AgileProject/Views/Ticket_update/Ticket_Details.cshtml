@@ -1,0 +1,238 @@
+﻿@model Tickets
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Ticket - Scrum Board</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f2;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-section a {
+            color: white;
+            text-decoration: none;
+            margin-left: 10px;
+        }
+
+        /* Form Styles */
+        .form-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .form-button {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* Error Message Styles */
+        .error-message {
+            color: red;
+            font-size: 14px;
+        }
+
+        /* Comments and Updates Styles */
+        .comments-updates-section {
+            margin-top: 20px;
+        }
+
+        .comments-section, .updates-section, .files-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .comments-section h3, .updates-section h3, .files-section h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .comments-section ul, .updates-section ul, .files-section ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .comments-section li, .updates-section li, .files-section li {
+            margin-bottom: 10px;
+        }
+
+        /* JavaScript for Toggle */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <a href="/dashboard/" style="text-decoration:none;color:white">Scrum Board</a>
+        </div>
+        <div class="user-section">
+            @if (User.Identity.IsAuthenticated)
+            {
+                    <span>Hello, @ViewData["Username"]</span>
+                    <a href="/Account/Logout">Logout</a>
+            }
+            else
+            {
+                    <a href="/Account/Login">Login</a>
+                    <a href="/Account/Register">Register</a>
+            }
+        </div>
+    </div>
+
+    <div class="form-container">
+        <h2>Edit Ticket</h2>
+        <form action="/Ticket/update" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="form-label" asp-for="Taskname">Task Name</label>
+                <input class="form-input" asp-for="Taskname" value="@Model.Taskname" required>
+            </div>
+            <div class="form-group" hidden>
+                <input class="form-input" asp-for="id" value="@Model.id" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="due">Due Date</label>
+                <input class="form-input" asp-for="due" required>
+                @if (TempData["wrong"] != null)
+                {
+                        <p class="error-message">Date cannot be before the current date.</p>
+                }
+            </div>
+            <div class="form-group">
+                <label asp-for="user_id">Assign to:</label>
+                <select asp-for="user_id" required>
+                    <option value="@Model.user_id">@ViewData["Username"]</option>
+                    @foreach (User_ i in ViewData["users"] as List<User_>)
+                    {
+                        if (Model.user_id != i.Email)
+                        {
+                                    <option value="@i.Email">@i.Name</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="attachment">Upload Attachment</label>
+                <input type="file" name="file" id="file" />
+            </div>
+            <button class="form-button" type="submit">Update Ticket</button>
+        </form>
+    </div>
+
+    <!-- Show/Hide Comments -->
+    <h3 class="toggle-comments">Show Comments</h3>
+    <div class="comments-updates-section">
+        <div class="comments-section hidden">
+            <h3>Comments</h3>
+            <ul>
+                @foreach (var i in ViewData["comments"] as List<comments>)
+                {
+                        <li><strong>@i.user_id:</strong> @i.data</li>
+                }
+                <!-- Add more comment entries as needed -->
+            </ul>
+            <form action="/Ticket/add/comment" method="post">
+                <input value="@Model.id" name="ticket_id" hidden/>
+                <label for="comment"></label>
+                <input type="text" name="data"></input>
+                <input type="submit"/>
+            </form>
+        </div>
+
+        <!-- Show/Hide Updates -->
+        <h3 class="toggle-updates">Show Updates</h3>
+        <div class="updates-section hidden">
+            <h3>Updates</h3>
+            <ul>
+                @foreach (var i in ViewData["updates"] as List<updates>)
+                {
+                        <li><strong>@i.user_id:</strong> @i.message</li>
+                }
+                <!-- Add more update entries as needed -->
+            </ul>
+        </div>
+
+        <!-- Show/Hide Files -->
+        <h3 class="toggle-files">Show Files</h3>
+        <div class="files-section hidden">
+            <h3>Files</h3>
+            <ul>
+                @foreach (var i in ViewData["files"] as List<files>)
+                {
+                    <li><strong><a href="/download/@i.file_id">Download</a></strong> @i.file_name</li>
+                }
+                <!-- Add more file entries as needed -->
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript for toggling sections
+        const toggleSection = (button, section) => {
+            const targetSection = document.querySelector(section);
+            button.addEventListener("click", () => {
+                targetSection.classList.toggle("hidden");
+            });
+        };
+
+        toggleSection(document.querySelector(".toggle-comments"), ".comments-section");
+        toggleSection(document.querySelector(".toggle-updates"), ".updates-section");
+        toggleSection(document.querySelector(".toggle-files"), ".files-section");
+    </script>
+</body>
+</html>

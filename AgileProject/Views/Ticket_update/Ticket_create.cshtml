@@ -1,0 +1,125 @@
+﻿@model Tickets
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scrum Board</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Header Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .user-section {
+            display: flex;
+            align-items: center;
+        }
+
+            .user-section a {
+                color: white;
+                text-decoration: none;
+                margin-left: 10px;
+            }
+
+        /* Form Styles */
+        .form-container {
+            background-color: #f2f2f2;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        .form-button {
+            background-color: #333;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            <a href="/dashboard/" style="text-decoration:none;color:white">Scrum Board</a>
+        </div>
+        <div class="user-section">
+            @if (User.Identity.IsAuthenticated)
+            {
+                <span>Hello, @ViewData["Username"]</span>
+                <a href="/Account/Logout">Logout</a>
+            }
+            else
+            {
+                <a href="/Account/Login">Login</a>
+                <a href="/Account/Register">Register</a>
+            }
+        </div>
+    </div>
+
+    <div class="form-container">
+        <h2>Create New Ticket</h2>
+        <form action="/Ticket/create_ticket" method="post">
+            <div class="form-group">
+                <label class="form-label" asp-for="Taskname"></label>
+                <input class="form-input"  asp-for="Taskname" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label" for="due">Due Date</label>
+                <input class="form-input" asp-for="due" required>
+                @if (TempData["wrong"] != null)
+                {
+                    Console.WriteLine("yes");
+                    <h5>Date cannot be before current date</h5>
+                }
+            </div>
+            <div class="form-group">
+                <label asp-for="user_id">Assign to:</label>
+                <select asp-for="user_id" required>
+                    @foreach (User_ i in ViewData["users"] as List<User_>)
+                    {
+                          <option value="@i.Email">@i.Name</option>
+                    }
+                </select>
+            </div>
+            <button class="form-button" type="submit">Create Ticket</button>
+        </form>
+    </div>
+</body>
+</html>

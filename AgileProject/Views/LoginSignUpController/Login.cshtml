@@ -1,0 +1,92 @@
+﻿@model User_Credintinals
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+            width: 500px;
+        }
+
+            .container h2 {
+                text-align: center;
+                margin-bottom: 20px;
+                color: #333;
+            }
+
+            .container input {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+            }
+
+            .container button {
+                width: 100%;
+                padding: 10px;
+                background-color: #3498db;
+                color: #fff;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+                .container button:hover {
+                    background-color: #2980b9;
+                }
+
+        .login-link {
+            text-align: center;
+            margin-top: 10px;
+            color: #666;
+        }
+
+            .login-link a {
+                color: #3498db;
+                text-decoration: none;
+            }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2>
+        <form action="/account/login" method="post">
+             <label asp-for="Email"></label>
+            <input asp-for="Email" required>
+            <span asp-validation-for="Email"></span>
+            <br />
+            <label asp-for="Password"></label>
+            <input asp-for="Password" required>
+            <span asp-validation-for="Password"></span>
+            <br />
+            <button type="submit">Login</button>
+        </form>
+        <div class="login-link">
+            Dont have an account? <a href="/account/signup">Signup</a>
+            @if(ViewData["Client_reg"] != null)
+           {
+            <h5>Invalid Email/Password please check them again</h5>
+           }
+            <h1>sign in with <a href="/facebook-sign">Facebook</a></h1>
+        </div>
+    </div>
+</body>
+</html>
