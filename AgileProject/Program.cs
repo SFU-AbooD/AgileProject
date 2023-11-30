@@ -17,8 +17,8 @@ builder.Services.AddAuthentication(options => {
     .AddCookie(
     options =>{options.LoginPath = "/Account/login"; })
     .AddFacebook(opt => {
-        opt.AppId = "6503810129729638";
-        opt.AppSecret= "c9fb2ef532affbec74abcd6909f25d20";
+        opt.AppId = "app";
+        opt.AppSecret= "app";
         opt.SaveTokens = false;
         opt.Scope.Add("email");
         opt.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
